@@ -1,0 +1,54 @@
+# Python
+__pycache__
+*.pyc
+*.egg-info
+dist
+
+# Log
+*.log
+*.log.*
+*.jsonl
+
+# 🌟 修复隐患：忽略所有的 json 数据集，但保留小型的配置 json (如 zero3.json)
+*.json
+!scripts/*.json
+!**/config.json
+!**/alpaca-data-conversation.json
+
+# Editor
+.idea
+*.swp
+
+# Other
+.DS_Store
+wandb
+output
+
+# Checkpoints (绝对不能传模型权重)
+checkpoints
+ckpts*
+
+.ipynb_checkpoints
+*.ipynb
+
+# DevContainer
+!.devcontainer/*
+
+# Demo
+serve_images/
+
+# ==========================================
+# 🌟 CLEAR 框架特有的数据集与生成物缓存 (新增)
+# ==========================================
+# 绝对不能传几十个G的数据集原图
+playground/data/
+
+# Hugging Face 下载的隐藏权重缓存
+.cache/
+
+# 推理产生的答案文件夹
+answers/
+
+# 运行代码时临时生成的热力图等图片
+heatmap*.jpg
+*.png
