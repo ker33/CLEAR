@@ -959,14 +959,9 @@ def train(attn_implementation=None):
     data_module = make_supervised_data_module(tokenizer=tokenizer,
                                               data_args=data_args)
     
-    
-    # =====================================================================
-    # 核心创新模块提权：强制唤醒解耦器 (Disentangler) 的梯度更新！
-    # =====================================================================
     print("=> Checking and Unfreezing Disentangler parameters...")
     disentangler_unfrozen = False
     for name, param in model.named_parameters():
-        # 只要参数名字里带有 disentangler，强制要求计算梯度！
         if "disentangler" in name:
             param.requires_grad = True
             disentangler_unfrozen = True
@@ -974,32 +969,25 @@ def train(attn_implementation=None):
             
     if not disentangler_unfrozen:
         print("  [Warning] Disentangler not found in model parameters!")
-    # =====================================================================
-    
     
     trainer = LLaVATrainer(model=model,
                     tokenizer=tokenizer,
                     args=training_args,
                     **data_module)
-
-    # =========================================================================
-    # 魔法补丁：强制关闭 PyTorch 的 strict 检查，完美解决 DeepSpeed+LoRA 恢复断点 Bug
-    # =========================================================================
+    
     _original_load_state_dict = torch.nn.Module.load_state_dict
 
     def _patched_load_state_dict(self, state_dict, *args, **kwargs):
-        kwargs['strict'] = False  # 强行篡改为 False
+        kwargs['strict'] = False  
         return _original_load_state_dict(self, state_dict, *args, **kwargs)
 
     torch.nn.Module.load_state_dict = _patched_load_state_dict
-    # =========================================================================
     
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
     else:
         trainer.train()
         
-    # 训练启动后恢复原状（保持代码整洁）
     torch.nn.Module.load_state_dict = _original_load_state_dict
         
     trainer.save_state()
