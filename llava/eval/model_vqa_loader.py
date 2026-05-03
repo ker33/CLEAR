@@ -14,9 +14,6 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import math
 
-# ==========================================================
-# 🌟 创新注入 1：导入干预补丁与对比解码模块
-# ==========================================================
 from llava.model.attention_intervention import apply_mask_guided_intervention, MaskGuidedCDProcessor
 from transformers.generation.logits_process import LogitsProcessorList
 
@@ -77,94 +74,15 @@ def eval_model(args):
     model_name = get_model_name_from_path(model_path)
     tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name)
 
-    # ==========================================================
-    # 🌟 创新注入 2：挂载 PSI 注意力干预基础模块
-    # ==========================================================
-    print("🚀 正在激活 V8 掩码引导双径对比解码底层架构...")
-    # dcd
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=15,   
-    #     end_layer=28,     
-    #     threshold=0.20,  
-    #     alpha=1.0        
-    # )
-    #dcd-layer-1
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=8,   
-    #     end_layer=28,     
-    #     threshold=0.50,  
-    #     alpha=0.50        
-    # )
-    #dcd-layer1
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=18,   
-    #     end_layer=28,     
-    #     threshold=0.20,  
-    #     alpha=0.50        
-    # )
-    # dcd-layer3
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=25,   
-    #     end_layer=28,     
-    #     threshold=0.20,  
-    #     alpha=0.50        
-    # )
-    # dcd-layer4
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=18,   
-    #     end_layer=28,     
-    #     threshold=0.50,  
-    #     alpha=1.0        
-    # )
-    #dcd-layer5
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=5,   
-    #     end_layer=15,     
-    #     threshold=0.50,  
-    #     alpha=0.50        
-    # )
-    
-    #ttt(!!!)
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=8,   
-    #     end_layer=28,     
-    #     threshold=0.20,  
-    #     alpha=0.50        
-    # )
-    
-    #ttt-1
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=8,   
-    #     end_layer=28,     
-    #     threshold=0.10,  
-    #     alpha=0.50        
-    # )
-    #ttt-2
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=8,   
-    #     end_layer=28,     
-    #     threshold=0.70,  
-    #     alpha=0.50        
-    # )
-    
-     #aaa
+    print("🚀 正在激活掩码引导双径对比解码底层架构...")
     apply_mask_guided_intervention(
         model=model, 
         start_layer=8,   
         end_layer=28,     
         threshold=0.20,  
-        alpha=1.0        
+        alpha=0.50        
     )
-    
+
     questions =[json.loads(q) for q in open(os.path.expanduser(args.question_file), "r")]
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx)
     answers_file = os.path.expanduser(args.answers_file)
@@ -195,14 +113,11 @@ def eval_model(args):
                     attn.img_end_idx = img_end_idx
 
         with torch.inference_mode():
-            # ==========================================================
-            # 🌟 创新注入 3：实例化并挂载对比解码处理器 (LogitsProcessor)
-            # ==========================================================
             cd_processor = MaskGuidedCDProcessor(
                 model=model,
                 images=image_tensor.to(dtype=torch.float16, device='cuda', non_blocking=True),
                 image_sizes=image_sizes,
-                penalty_alpha=0.4 # OWL级别惩罚因子：将幻觉词概率从脑海中抹杀！
+                penalty_alpha=0.4 
             )
             logits_processor = LogitsProcessorList([cd_processor])
 
@@ -210,7 +125,7 @@ def eval_model(args):
                 input_ids,
                 images=image_tensor.to(dtype=torch.float16, device='cuda', non_blocking=True),
                 image_sizes=image_sizes,
-                logits_processor=logits_processor, # 挂载！
+                logits_processor=logits_processor, 
                 do_sample=True if args.temperature > 0 else False,
                 temperature=args.temperature,
                 top_p=args.top_p,
