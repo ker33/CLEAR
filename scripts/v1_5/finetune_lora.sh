@@ -5,7 +5,7 @@ deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero3.json \
     --model_name_or_path ./checkpoints/llava-v1.5-7b-official \
     --version v1 \
-    --data_path ./playground/data/llava_mixed_210k_ultimate.json \
+    --data_path ./playground/data/llava_mixed_180k_adversarial.json \
     --image_folder ./playground/data/coco/train2014 \
     --vision_tower ./checkpoints/clip-vit-large-patch14-336 \
     --mm_projector_type mlp2x_gelu \
@@ -15,7 +15,7 @@ deepspeed llava/train/train_mem.py \
     --image_aspect_ratio pad \
     --group_by_modality_length True \
     --bf16 True \
-    --output_dir ./checkpoints/llava-v1.5-7b-dualcd-lora-mix-pro \
+    --output_dir ./checkpoints/llava-v1.5-7b-dualcd-lora-mix \
     --resume_from_checkpoint True \
     --num_train_epochs 1 \
     --per_device_train_batch_size 4 \
