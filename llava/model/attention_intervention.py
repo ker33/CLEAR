@@ -20,9 +20,6 @@ def llama_new_forward(
     
     bsz, q_len, _ = hidden_states.size()
 
-    # ==========================================================
-    # 1. 基础 Q, K, V 与位置编码
-    # ==========================================================
     query_states = self.q_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
     key_states = self.k_proj(hidden_states).view(bsz, q_len, getattr(self, "num_key_value_heads", self.num_heads), self.head_dim).transpose(1, 2)
     value_states = self.v_proj(hidden_states).view(bsz, q_len, getattr(self, "num_key_value_heads", self.num_heads), self.head_dim).transpose(1, 2)
@@ -49,9 +46,6 @@ def llama_new_forward(
 
     attn_probs = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32)
 
-    # =========================================================================
-    # 🌟 V8 掩码引导正负双径注意力机制 (Dual-Path Attention Intervention)
-    # =========================================================================
     if hasattr(self, "use_intervention") and self.use_intervention:
         img_s = getattr(self, "img_start_idx", -1)
         img_e = getattr(self, "img_end_idx", -1)
@@ -70,19 +64,16 @@ def llama_new_forward(
                 new_probs = attn_probs.clone()
                 scale_factor = torch.ones_like(new_probs[:, :, -1, img_s:img_e])
 
-                # 💡 核心修复：展平维度的同时，动态转移到当前层所在的显卡！
                 _mask = None
                 if object_mask is not None:
                     _mask = object_mask.view(bsz, 1, -1).to(new_probs.device)
 
-                # 【正向路径】：放大视觉
                 if mode == "positive":
                     scale_factor = scale_factor + self.alpha * 0.1
                     if _mask is not None and _mask.shape[-1] == (img_e - img_s):
                         if _mask.max() > 0.3:
                             scale_factor = scale_factor + self.alpha * 0.9 * _mask
 
-                # 【反向路径】：盲猜诱导
                 elif mode == "negative":
                     if _mask is not None and _mask.shape[-1] == (img_e - img_s):
                         scale_factor = scale_factor * (1.0 - _mask)
@@ -109,10 +100,6 @@ def apply_mask_guided_intervention(model, start_layer=8, end_layer=28, threshold
         layer.master_model = model.model 
         layer.forward = types.MethodType(llama_new_forward, layer)
 
-
-# =========================================================================
-# 🌟 基于解耦掩码的对比解码处理器 (Mask-Guided Contrastive Decoding)
-# =========================================================================
 class MaskGuidedCDProcessor(LogitsProcessor):
     def __init__(self, model, images, image_sizes, penalty_alpha=0.4):
         self.model = model
