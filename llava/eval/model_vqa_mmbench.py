@@ -15,9 +15,6 @@ from llava.mm_utils import tokenizer_image_token, process_images, load_image_fro
 from PIL import Image
 import math
 
-# ==========================================================
-# 🌟 创新注入 1：导入干预补丁与对比解码模块
-# ==========================================================
 from llava.model.attention_intervention import apply_mask_guided_intervention, MaskGuidedCDProcessor
 from transformers.generation.logits_process import LogitsProcessorList
 
@@ -64,34 +61,14 @@ def eval_model(args):
     model_name = get_model_name_from_path(model_path)
     tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name)
 
-    # ==========================================================
-    # 🌟 创新注入 2：挂载 PSI 注意力干预基础模块
-    # ==========================================================
-    print("🚀 正在激活 V8 掩码引导双径对比解码底层架构 (MMBench 兼容版)...")
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=15,   
-    #     end_layer=28,     
-    #     threshold=0.20,  
-    #     alpha=1.0        
-    # )
-    # dcd-layer1
+    print("🚀 正在激活掩码引导双径对比解码底层架构 (MMBench 兼容版)...")
     apply_mask_guided_intervention(
         model=model, 
-        start_layer=18,   
+        start_layer=8,   
         end_layer=28,     
         threshold=0.20,  
         alpha=0.50        
     )
-    # dcd-layer3
-    # apply_mask_guided_intervention(
-    #     model=model, 
-    #     start_layer=25,   
-    #     end_layer=28,     
-    #     threshold=0.20,  
-    #     alpha=0.50        
-    # )
-    # ==========================================================
 
     questions = pd.read_table(os.path.expanduser(args.question_file))
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx)
@@ -117,7 +94,6 @@ def eval_model(args):
             question = row['question']
             hint = row['hint']
             
-            # 安全读取图像（兼容部分纯文本或异常情况）
             image = load_image_from_base64(row['image']) if not is_none(row['image']) else None
             
             if not is_none(hint):
@@ -144,7 +120,6 @@ def eval_model(args):
 
             input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).cuda()
 
-            # 处理图像 Tensor
             images = None
             image_sizes = None
             if image is not None:
@@ -152,42 +127,33 @@ def eval_model(args):
                 images = image_tensor.unsqueeze(0).half().cuda()
                 image_sizes =[image.size]
 
-            # ==========================================================
-            # 🌟 创新注入 3：动态定位 <image> 位置并设置干预处理器
-            # ==========================================================
             logits_processor = None
             
-            # 每轮循环前：务必重置所有层的图像索引，防止多轮选项旋转带来的上下文偏移污染
             for layer_idx in range(len(model.model.layers)):
                 if hasattr(model.model.layers[layer_idx].self_attn, 'use_intervention'):
                     model.model.layers[layer_idx].self_attn.img_start_idx = -1
                     model.model.layers[layer_idx].self_attn.img_end_idx = -1
             
-            # 如果存在图像，初始化干预机制
             if images is not None:
                 image_token_pos = torch.where(input_ids[0] == IMAGE_TOKEN_INDEX)[0]
                 if len(image_token_pos) > 0:
                     img_start_idx = image_token_pos.item()
                     img_end_idx = img_start_idx + 576 
                     
-                    # 更新当前轮次的精确图片位置索引
                     for layer_idx in range(len(model.model.layers)):
                         if hasattr(model.model.layers[layer_idx].self_attn, 'use_intervention'):
                             model.model.layers[layer_idx].self_attn.img_start_idx = img_start_idx
                             model.model.layers[layer_idx].self_attn.img_end_idx = img_end_idx
                     
-                    # 挂载掩码对比解码处理器
                     cd_processor = MaskGuidedCDProcessor(
                         model=model,
                         images=images,
                         image_sizes=image_sizes,
-                        penalty_alpha=0.4 # OWL 惩罚因子
+                        penalty_alpha=0.4 
                     )
                     logits_processor = LogitsProcessorList([cd_processor])
-            # ==========================================================
 
             with torch.inference_mode():
-                # 动态生成 kwargs，无缝兼容干预模式
                 gen_kwargs = {
                     "inputs": input_ids,
                     "images": images,
