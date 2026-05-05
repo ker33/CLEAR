@@ -1,8 +1,7 @@
-# 🌟 Disentangle, Intervene, and Contrast: A Unified Causal Framework for Object Hallucination Mitigation in MLLMs
-
+# 🌟 Disentangle to Mitigate: A Unified Causal Framework for Object Hallucinations in MLLMs
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
-> This is the official repository for the paper **"Disentangle, Intervene, and Contrast: A Unified Causal Framework for Object Hallucination Mitigation in MLLMs"**.
+> This is the official repository for the paper **"Disentangle to Mitigate: A Unified Causal Framework for Object Hallucinations in MLLMs"**.
 
 ---
 
@@ -20,7 +19,7 @@ Furthermore, by operating strictly within the normalized probability space (**Pr
 ## 🎯 Causal Modeling of Object Hallucination Process
 
 <p align="center">
-  <img src="images/teaser.png" width="80%">
+  <img src="images/teaser.pdf" width="80%">
 </p>
 
 We reveal that hallucinations are essentially **causal misattributions** triggered by two erroneous paths:
@@ -29,7 +28,7 @@ We reveal that hallucinations are essentially **causal misattributions** trigger
 2. **Language Prior Bias ($X_{text} \rightarrow Y$)**  
 
 <p align="center">
-  <img src="images/framework.png" width="90%">
+  <img src="images/framework.pdf" width="90%">
 </p>
 
 ---
