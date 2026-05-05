@@ -19,7 +19,7 @@ Furthermore, by operating strictly within the normalized probability space (**Pr
 ## 🎯 Causal Modeling of Object Hallucination Process
 
 <p align="center">
-  <img src="images/teaser.pdf" width="80%">
+  <img src="images/teaser.png" width="80%">
 </p>
 
 We reveal that hallucinations are essentially **causal misattributions** triggered by two erroneous paths:
@@ -28,7 +28,7 @@ We reveal that hallucinations are essentially **causal misattributions** trigger
 2. **Language Prior Bias ($X_{text} \rightarrow Y$)**  
 
 <p align="center">
-  <img src="images/framework.pdf" width="90%">
+  <img src="images/framework.png" width="90%">
 </p>
 
 ---
