@@ -1,7 +1,7 @@
-# 🌟 Disentangle to Mitigate: A Unified Causal Framework for Object Hallucinations in MLLMs
+# 🌟 CLEAR: Rethinking Hallucinations in Multimodal Large Language Models as Causal Misattribution
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
-> This is the official repository for the paper **"Disentangle to Mitigate: A Unified Causal Framework for Object Hallucinations in MLLMs"**.
+> This is the official repository for the paper **"CLEAR: Rethinking Hallucinations in Multimodal Large Language Models as Causal Misattribution"**.
 
 ---
 
