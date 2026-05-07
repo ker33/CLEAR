@@ -21,8 +21,8 @@ We further perform Probability-Space Intervention (PSI) in the normalized attent
 
 We reveal that hallucinations are essentially **causal misattributions** triggered by two erroneous paths:
 
-1. **Language Prior Bias ($X_{text} \rightarrow Y$)**
-2. **Spurious Co-occurrence Bias ($Z_{bg} \rightarrow Y$)**  
+1. **Language Prior Bias** ($X_{\text{text}} \rightarrow Y$)  
+2. **Spurious Co-occurrence Bias** ($Z_{\text{bg}} \rightarrow Y$)
 
 <p align="center">
   <img src="images/framework.png" width="90%">
