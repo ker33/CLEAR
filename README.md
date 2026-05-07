@@ -7,12 +7,9 @@
 
 ## 📖 Abstract
 
-Multimodal Large Language Models (MLLMs) frequently suffer from object hallucinations. We formulate this issue as a **causal misattribution** problem driven by *spurious visual co-occurrences* and *autoregressive language priors*. Since existing heuristic strategies lack a unified causal structure to disentangle these confounders, we propose **CLEAR** (**C**ausal **L**atent **E**xtraction **A**nd **R**e-normalization), a comprehensive training-inference causal intervention framework. 
-
-- **During training**, CLEAR employs **Latent Causal Disentanglement (LCD)** to isolate target objects from background confounders via in-image counterfactual shuffling, effectively breaking spurious correlations.  
-- **During inference**, it utilizes **Mask-Guided Contrastive Decoding (MGCD)** to explicitly suppress language priors by contrasting a target-enhanced factual path with a mask-inverted counterfactual path.  
-
-Furthermore, by operating strictly within the normalized probability space (**Probability-Space Intervention, PSI**), our intervention avoids spatial distortion. Extensive experiments demonstrate that CLEAR achieves state-of-the-art hallucination mitigation (e.g., POPE, CHAIR) while perfectly preserving fine-grained cognitive capabilities on general benchmarks (e.g., MME, MMBench).
+Multimodal Large Language Models (MLLMs) are prone to object hallucinations, generating visually unsupported content that undermines reliability. We frame this issue from a causal perspective, attributing hallucinations to spurious visual co-occurrence bias and over-reliance on autoregressive language priors.
+To address this, we propose **CLEAR** (**C**ausal **L**atent **E**xtraction **A**nd **R**e-normalization), a unified framework that mitigates hallucinations during both training and inference. During training, CLEAR employs a text-guided Latent Causal Disentanglement (LCD) module with in-image counterfactual intervention to separate object-relevant features from confounding background context. During inference, we introduce Mask-Guided Contrastive Decoding (MGCD), which contrasts factual and counterfactual decoding paths to suppress language-prior-driven errors.
+We further perform Probability-Space Intervention (PSI) in the normalized attention space, enabling stable intervention while preserving spatial structure. Extensive experiments show that CLEAR consistently reduces hallucinations across benchmarks while maintaining strong multimodal reasoning performance, demonstrating the effectiveness of causal intervention for improving model faithfulness.
 
 ---
 
@@ -24,8 +21,8 @@ Furthermore, by operating strictly within the normalized probability space (**Pr
 
 We reveal that hallucinations are essentially **causal misattributions** triggered by two erroneous paths:
 
-1. **Spurious Co-occurrence Bias ($Z_{bg} \rightarrow Y$)**  
-2. **Language Prior Bias ($X_{text} \rightarrow Y$)**  
+1. **Language Prior Bias ($X_{text} \rightarrow Y$)**
+2. **Spurious Co-occurrence Bias ($Z_{bg} \rightarrow Y$)**  
 
 <p align="center">
   <img src="images/framework.png" width="90%">
